@@ -9,6 +9,9 @@
 #include "ray.h"
 #include "stb_image_write.h"
 
+#include "hittable_list.h"
+#include "sphere.h"
+
 void example01();
 void example02();
 void example03();
@@ -22,9 +25,12 @@ void example05();
 vec3 example05_color(const ray &r);
 float example05_hit_Sphere(const vec3 &center, float fRadius, const ray &r);
 
+void example06();
+vec3 example06_color(const ray &r, hittable *world);
+
 int _tmain(int argc, _TCHAR* argv[])
 {
-	example05();
+	example06();
 
 	return 0;
 }
@@ -263,7 +269,7 @@ float example05_hit_Sphere(const vec3 &center, float fRadius, const ray &r)
 
 vec3 example05_color(const ray &r)
 {
-	float t = example04_hit_Sphere(vec3(0, 0, -1.0), 0.5, r);
+	float t = example04_hit_Sphere(vec3(0, 0, -1), 0.5, r);
 
 	if (t > 0.0)
 	{
@@ -272,4 +278,63 @@ vec3 example05_color(const ray &r)
 	}
 
 	return example03_color(r);
+}
+
+void example06()
+{
+	int nx = 200, ny = 100;
+
+	char *Ptr = NULL;
+	Ptr = (char *)malloc(nx*ny * 3 * sizeof(char));
+
+	vec3 lower_left_corner(-2.0, -1.0, -1.0);
+	vec3 horizontal(4.0, 0.0, 0.0);
+	vec3 vertical(0.0, 2.0, 0.0);
+	vec3 origin(0.0, 0.0, 0.0);
+
+	hittable *list[2];
+	list[0] = new sphere(vec3(0.0, 0.0, -1.0), 0.5);
+	list[1] = new sphere(vec3(0.0, -100.5, -1.0), 100);
+	hittable_list *world = new hittable_list(list, 2);
+
+	int nIndex = 0;
+	for (int j = ny - 1; j >= 0; j--)
+	{
+		for (int i = 0; i < nx; i++)
+		{
+			float u = float(i) / nx;
+			float v = float(j) / ny;
+
+			ray r(origin, lower_left_corner + u*horizontal + v*vertical);
+			vec3 p = r.point_at_parameter(2.0);
+			vec3 col = example06_color(r, world);
+			Ptr[nIndex++] = unsigned char(255.99*col[0]);
+			Ptr[nIndex++] = unsigned char(255.99*col[1]);
+			Ptr[nIndex++] = unsigned char(255.99*col[2]);
+			std::cout << 255.99*col[0] << " " << 255.99*col[1] << " " << 255.99*col[2] << "\n";
+		}
+	}
+
+	unsigned int channels_num = 3;
+
+	stbi_write_jpg("E:\\example06.jpg", nx, ny, channels_num, Ptr, nx * channels_num);
+
+	if (NULL != Ptr)
+	{
+		free(Ptr);
+		Ptr = NULL;
+	}
+}
+
+vec3 example06_color(const ray &r, hittable *world)
+{
+	hit_record rec;
+	if (world->hit(r, 0.0, FLT_MAX, rec))
+	{
+		return 0.5*vec3(rec.normal.x() + 1, rec.normal.y() + 1, rec.normal.z() + 1);
+	}
+	else
+	{
+		return example03_color(r);
+	}
 }

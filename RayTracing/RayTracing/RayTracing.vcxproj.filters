@@ -39,6 +39,9 @@
     <ClInclude Include="sphere.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="hittable_list.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -48,15 +51,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="vec3.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="ray.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="hittable.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="sphere.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

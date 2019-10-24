@@ -38,6 +38,12 @@ vec3 example08_color(const ray &r, hittable *world);
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+	example02();
+	example03();
+	example04();
+	example05();
+	example06();
+	example07();
 	example08();
 
 	return 0;

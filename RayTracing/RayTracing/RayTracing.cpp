@@ -13,6 +13,7 @@
 #include "sphere.h"
 #include "camera.h"
 #include "random.h"
+#include "lambertian.h"
 
 void example01();
 void example02();
@@ -33,18 +34,14 @@ vec3 example06_color(const ray &r, hittable *world);
 void example07();
 
 void example08();
-vec3 random_unit_sphere();
 vec3 example08_color(const ray &r, hittable *world);
+
+void example09();
+vec3 example09_color(const ray &r, hittable *world, int depth);
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	example02();
-	example03();
-	example04();
-	example05();
-	example06();
-	example07();
-	example08();
+	example09();
 
 	return 0;
 }
@@ -436,7 +433,7 @@ void example08()
 				col += example08_color(r, world);
 			}
 			col /= float(ns);
-
+			col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
 			Ptr[nIndex++] = unsigned char(255.99*col[0]);
 			Ptr[nIndex++] = unsigned char(255.99*col[1]);
 			Ptr[nIndex++] = unsigned char(255.99*col[2]);
@@ -455,17 +452,6 @@ void example08()
 	}
 }
 
-vec3 random_unit_sphere()
-{
-	vec3 p, unitP(1.0, 1.0, 1.0);
-	do 
-	{
-		p = 2.0*vec3(random_double(), random_double(), random_double()) - unitP;
-	} while (p.squared_length() >= 1.0);
-
-	return p;
-}
-
 vec3 example08_color(const ray &r, hittable *world)
 {
 	hit_record rec;
@@ -479,3 +465,75 @@ vec3 example08_color(const ray &r, hittable *world)
 		return example03_color(r);
 	}
 }
+
+
+void example09()
+{
+	int nx = 200, ny = 100, ns = 100;
+
+	char *Ptr = NULL;
+	Ptr = (char *)malloc(nx*ny * 3 * sizeof(char));
+
+	hittable *list[4];
+	list[0] = new sphere(vec3(0.0, 0.0, -1.0), 0.5, new lambertian(vec3(0.8, 0.3, 0.3)));
+	list[1] = new sphere(vec3(0.0, -100.5, -1.0), 100, new lambertian(vec3(0.8, 0.8, 0.0)));
+	list[2] = new sphere(vec3(1.0, 0.0, -1.0), 0.5, new lambertian(vec3(0.8, 0.6, 0.2)));
+	list[3] = new sphere(vec3(-1.0, 0, -1.0), 0.5, new lambertian(vec3(0.8, 0.8, 0.8)));
+	hittable_list *world = new hittable_list(list, 4);
+	camera cam;
+	int nIndex = 0;
+	for (int j = ny - 1; j >= 0; j--)
+	{
+		for (int i = 0; i < nx; i++)
+		{
+			vec3 col(0, 0, 0);
+			for (int s = 0; s < ns; s++)
+			{
+				float u = float(random_double() + i) / nx;
+				float v = float(random_double() + j) / ny;
+				ray r = cam.getRay(u, v);
+				col += example09_color(r, world, 0);
+			}
+			col /= float(ns);
+			col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
+			Ptr[nIndex++] = unsigned char(255.99*col[0]);
+			Ptr[nIndex++] = unsigned char(255.99*col[1]);
+			Ptr[nIndex++] = unsigned char(255.99*col[2]);
+			std::cout << 255.99*col[0] << " " << 255.99*col[1] << " " << 255.99*col[2] << "\n";
+		}
+	}
+
+	unsigned int channels_num = 3;
+
+	stbi_write_jpg("E:\\example09.jpg", nx, ny, channels_num, Ptr, nx * channels_num);
+
+	if (NULL != Ptr)
+	{
+		free(Ptr);
+		Ptr = NULL;
+	}
+}
+
+vec3 example09_color(const ray &r, hittable *world,int depth)
+{
+	hit_record rec;
+	if (world->hit(r, 0.001, FLT_MAX, rec))
+	{
+		ray scattered;
+		vec3 attenuation;
+		if (depth < 50 && (rec.mat_prt->scatter(r, rec, attenuation, scattered)))
+		{
+			return attenuation*example09_color(scattered, world, depth + 1);
+		}
+		else
+		{
+			return vec3(0, 0, 0);
+		}
+
+	}
+	else
+	{
+		return example03_color(r);
+	}
+}
+

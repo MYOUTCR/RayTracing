@@ -15,5 +15,15 @@ inline double random_double()
 	return rand_generator();
 }
 
+vec3 random_unit_sphere()
+{
+	vec3 p, unitP(1.0, 1.0, 1.0);
+	do
+	{
+		p = 2.0*vec3(random_double(), random_double(), random_double()) - unitP;
+	} while (p.squared_length() >= 1.0);
+
+	return p;
+}
 
 #endif

@@ -32,3 +32,15 @@
 实例8
 
 ![image](https://raw.githubusercontent.com/MYOUTCR/RayTracing/master/RayTracing/TestImg/example08.jpg)
+
+实例9
+
+![image](https://raw.githubusercontent.com/MYOUTCR/RayTracing/master/RayTracing/TestImg/example09.jpg)
+
+实例10
+
+![image](https://raw.githubusercontent.com/MYOUTCR/RayTracing/master/RayTracing/TestImg/example10.jpg)
+
+实例11
+
+![image](https://raw.githubusercontent.com/MYOUTCR/RayTracing/master/RayTracing/TestImg/example11.jpg)

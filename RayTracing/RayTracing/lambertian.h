@@ -13,7 +13,7 @@ public:
 
 	virtual bool scatter(const ray &r_in, const hit_record &rec, vec3 &attenuation, ray& scattered) const 
 	{
-		vec3 target = rec.p + rec.normal + random_unit_sphere();
+		vec3 target = rec.p + rec.normal + random_in_unit_sphere();
 		scattered = ray(rec.p, target - rec.p);
 		attenuation = _albedo;
 		return true;
@@ -30,19 +30,81 @@ vec3 reflect(const vec3 &v,const vec3 &n)
 class metal :public material
 {
 public:
-	metal(vec3 albedo) :_albedo(albedo){}
+	metal(vec3 albedo) :_albedo(albedo), _fuzz(0){}
+	metal(vec3 albedo, float fz) :_albedo(albedo)
+	{
+		_fuzz = (fz < 1) ? fz : 1;
+	}
 
 	virtual bool scatter(const ray &r_in, const hit_record &rec, vec3 &attenuation, ray& scattered) const
 	{
 		vec3 reflected = reflect(unit_vector(r_in.direction()), rec.normal);
-		scattered = ray(rec.p, reflected);
+		scattered = ray(rec.p, reflected + _fuzz*random_in_unit_sphere());
 		attenuation = _albedo;
 
 		return (dot(scattered.direction(), rec.normal)>0);
 	}
 
 	vec3 _albedo;
+	float _fuzz;
 };
 
+bool refract(const vec3 &v, const vec3 &n, float ni_over_nt, vec3 &refracted)
+{
+	vec3 uv = unit_vector(v);
+	float dt = dot(uv, n);
+	float fDis = 1.0 - ni_over_nt*ni_over_nt*(1.0 - dt*dt);
+	if (fDis > 0)
+	{
+		refracted = ni_over_nt*(uv - n*dt) - n*sqrt(fDis);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+class dielectric :public material
+{
+public:
+	dielectric(float ri):_ref_idx(ri){};
+
+	virtual bool scatter(const ray &r_in, const hit_record &rec, vec3 &attenuation, ray& scattered) const
+	{
+		vec3 outWard_normal;
+		vec3 relected = reflect(r_in.direction(), rec.normal);
+
+		float ni_over_nt;
+		attenuation = vec3(1.0, 1.0, 1.0);
+		vec3 refracted;
+
+		if (dot(r_in.direction(), rec.normal) > 0)
+		{
+			outWard_normal = -rec.normal;
+			ni_over_nt = _ref_idx;
+		}
+		else
+		{
+			outWard_normal = rec.normal;
+			ni_over_nt = 1.0 / _ref_idx;
+		}
+
+		if (refract(r_in.direction(), outWard_normal, ni_over_nt, refracted))
+		{
+			scattered = ray(rec.p, refracted);
+		}
+		else
+		{
+			scattered = ray(rec.p, refracted);
+			return false;
+		}
+
+		return true;
+	}
+
+	float _ref_idx;
+
+};
 
 #endif

@@ -39,9 +39,13 @@ vec3 example08_color(const ray &r, hittable *world);
 void example09();
 vec3 example09_color(const ray &r, hittable *world, int depth);
 
+void example10();
+
+void example11();
+
 int _tmain(int argc, _TCHAR* argv[])
 {
-	example09();
+	example11();
 
 	return 0;
 }
@@ -457,7 +461,7 @@ vec3 example08_color(const ray &r, hittable *world)
 	hit_record rec;
 	if (world->hit(r, 0.0, FLT_MAX, rec))
 	{
-		vec3 target = rec.p + rec.normal + random_unit_sphere();
+		vec3 target = rec.p + rec.normal + random_in_unit_sphere();
 		return 0.5*example08_color(ray(rec.p, target - rec.p), world);
 	}
 	else
@@ -477,8 +481,8 @@ void example09()
 	hittable *list[4];
 	list[0] = new sphere(vec3(0.0, 0.0, -1.0), 0.5, new lambertian(vec3(0.8, 0.3, 0.3)));
 	list[1] = new sphere(vec3(0.0, -100.5, -1.0), 100, new lambertian(vec3(0.8, 0.8, 0.0)));
-	list[2] = new sphere(vec3(1.0, 0.0, -1.0), 0.5, new lambertian(vec3(0.8, 0.6, 0.2)));
-	list[3] = new sphere(vec3(-1.0, 0, -1.0), 0.5, new lambertian(vec3(0.8, 0.8, 0.8)));
+	list[2] = new sphere(vec3(1.0, 0.0, -1.0), 0.5, new metal(vec3(0.8, 0.6, 0.2)));
+	list[3] = new sphere(vec3(-1.0, 0, -1.0), 0.5, new metal(vec3(0.8, 0.8, 0.8)));
 	hittable_list *world = new hittable_list(list, 4);
 	camera cam;
 	int nIndex = 0;
@@ -489,8 +493,8 @@ void example09()
 			vec3 col(0, 0, 0);
 			for (int s = 0; s < ns; s++)
 			{
-				float u = float(random_double() + i) / nx;
-				float v = float(random_double() + j) / ny;
+				float u = float(random_double() + i) / float(nx);
+				float v = float(random_double() + j) / float(ny);
 				ray r = cam.getRay(u, v);
 				col += example09_color(r, world, 0);
 			}
@@ -537,3 +541,97 @@ vec3 example09_color(const ray &r, hittable *world,int depth)
 	}
 }
 
+
+void example10()
+{
+	int nx = 200, ny = 100, ns = 100;
+
+	char *Ptr = NULL;
+	Ptr = (char *)malloc(nx*ny * 3 * sizeof(char));
+
+	hittable *list[4];
+	list[0] = new sphere(vec3(0.0, 0.0, -1.0), 0.5, new lambertian(vec3(0.8, 0.3, 0.3)));
+	list[1] = new sphere(vec3(0.0, -100.5, -1.0), 100, new lambertian(vec3(0.8, 0.8, 0.0)));
+	list[2] = new sphere(vec3(1.0, 0.0, -1.0), 0.5, new metal(vec3(0.8, 0.6, 0.2),0.3));
+	list[3] = new sphere(vec3(-1.0, 0, -1.0), 0.5, new metal(vec3(0.8, 0.8, 0.8),1.0));
+	hittable_list *world = new hittable_list(list, 4);
+	camera cam;
+	int nIndex = 0;
+	for (int j = ny - 1; j >= 0; j--)
+	{
+		for (int i = 0; i < nx; i++)
+		{
+			vec3 col(0, 0, 0);
+			for (int s = 0; s < ns; s++)
+			{
+				float u = float(random_double() + i) / float(nx);
+				float v = float(random_double() + j) / float(ny);
+				ray r = cam.getRay(u, v);
+				col += example09_color(r, world, 0);
+			}
+			col /= float(ns);
+			col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
+			Ptr[nIndex++] = unsigned char(255.99*col[0]);
+			Ptr[nIndex++] = unsigned char(255.99*col[1]);
+			Ptr[nIndex++] = unsigned char(255.99*col[2]);
+			std::cout << 255.99*col[0] << " " << 255.99*col[1] << " " << 255.99*col[2] << "\n";
+		}
+	}
+
+	unsigned int channels_num = 3;
+
+	stbi_write_jpg("E:\\example10.jpg", nx, ny, channels_num, Ptr, nx * channels_num);
+
+	if (NULL != Ptr)
+	{
+		free(Ptr);
+		Ptr = NULL;
+	}
+}
+
+void example11()
+{
+	int nx = 200, ny = 100, ns = 100;
+
+	char *Ptr = NULL;
+	Ptr = (char *)malloc(nx*ny * 3 * sizeof(char));
+
+	hittable *list[4];
+	list[0] = new sphere(vec3(0.0, 0.0, -1.0), 0.5, new lambertian(vec3(0.1, 0.2, 0.5)));
+	list[1] = new sphere(vec3(0.0, -100.5, -1.0), 100, new lambertian(vec3(0.8, 0.8, 0.0)));
+	list[2] = new sphere(vec3(1.0, 0.0, -1.0), 0.5, new metal(vec3(0.8, 0.6, 0.2), 0.0));
+	list[3] = new sphere(vec3(-1.0, 0, -1.0), 0.5, new dielectric(1.5));
+	hittable_list *world = new hittable_list(list, 4);
+	camera cam;
+	int nIndex = 0;
+	for (int j = ny - 1; j >= 0; j--)
+	{
+		for (int i = 0; i < nx; i++)
+		{
+			vec3 col(0, 0, 0);
+			for (int s = 0; s < ns; s++)
+			{
+				float u = float(random_double() + i) / float(nx);
+				float v = float(random_double() + j) / float(ny);
+				ray r = cam.getRay(u, v);
+				col += example09_color(r, world, 0);
+			}
+			col /= float(ns);
+			col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
+			Ptr[nIndex++] = unsigned char(255.99*col[0]);
+			Ptr[nIndex++] = unsigned char(255.99*col[1]);
+			Ptr[nIndex++] = unsigned char(255.99*col[2]);
+			std::cout << 255.99*col[0] << " " << 255.99*col[1] << " " << 255.99*col[2] << "\n";
+		}
+	}
+
+	unsigned int channels_num = 3;
+
+	stbi_write_jpg("E:\\example11.jpg", nx, ny, channels_num, Ptr, nx * channels_num);
+
+	if (NULL != Ptr)
+	{
+		free(Ptr);
+		Ptr = NULL;
+	}
+}

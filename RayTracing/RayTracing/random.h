@@ -15,7 +15,7 @@ inline double random_double()
 	return rand_generator();
 }
 
-vec3 random_unit_sphere()
+vec3 random_in_unit_sphere()
 {
 	vec3 p, unitP(1.0, 1.0, 1.0);
 	do

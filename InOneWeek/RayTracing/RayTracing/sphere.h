@@ -9,7 +9,7 @@ class sphere :public hittable
 {
 public:
 	sphere(){}
-	sphere(vec3 center, float fRadius, material *m) :_center(center), _fRadius(fRadius), _mat_prt(m){}
+	sphere(vec3 center, float fRadius, material *m) :_center(center), _fRadius(fRadius), _mat_ptr(m){}
 	sphere(vec3 center, float fRadius) :_center(center), _fRadius(fRadius){}
 	~sphere(){}
 
@@ -17,7 +17,7 @@ public:
 
 	vec3 _center;
 	float _fRadius;
-	material *_mat_prt;
+	material *_mat_ptr;
 };
 
 bool sphere::hit(const ray &r, float f_min, float f_max, hit_record &rec)const
@@ -36,7 +36,7 @@ bool sphere::hit(const ray &r, float f_min, float f_max, hit_record &rec)const
 			rec.t = temp;
 			rec.p = r.point_at_parameter(rec.t);
 			rec.normal = (rec.p - _center) / _fRadius;
-			rec.mat_prt = _mat_prt;
+			rec.mat_ptr = _mat_ptr;
 			return true;
 		}
 
@@ -46,7 +46,7 @@ bool sphere::hit(const ray &r, float f_min, float f_max, hit_record &rec)const
 			rec.t = temp;
 			rec.p = r.point_at_parameter(rec.t);
 			rec.normal = (rec.p - _center) / _fRadius;
-			rec.mat_prt = _mat_prt;
+			rec.mat_ptr = _mat_ptr;
 			return true;
 		}
 	}

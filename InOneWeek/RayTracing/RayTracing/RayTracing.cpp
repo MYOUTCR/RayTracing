@@ -538,7 +538,7 @@ vec3 example09_color(const ray &r, hittable *world,int depth)
 	{
 		ray scattered;
 		vec3 attenuation;
-		if (depth < 50 && (rec.mat_prt->scatter(r, rec, attenuation, scattered)))
+		if (depth < 50 && (rec.mat_ptr->scatter(r, rec, attenuation, scattered)))
 		{
 			return attenuation*example09_color(scattered, world, depth + 1);
 		}
@@ -902,7 +902,7 @@ vec3 example16_color(const ray &r, hittable *world, int depth)
 	{
 		ray scattered;
 		vec3 attenuation;
-		if (depth < 50 && (rec.mat_prt->scatter(r, rec, attenuation, scattered)))
+		if (depth < 50 && (rec.mat_ptr->scatter(r, rec, attenuation, scattered)))
 		{
 			return attenuation*example16_color(scattered, world, depth + 1);
 		}

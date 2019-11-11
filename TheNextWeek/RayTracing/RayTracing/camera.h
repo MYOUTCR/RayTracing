@@ -110,7 +110,7 @@ public:
 		vec3 rd = _lens_radius*random_in_unit_disk();
 		vec3 offset = _u*rd.x() + _v*rd.y();
 		float ftime = _time0 + random_double()*(_time1 - _time0);
-		return ray(_origin + offset, _lower_left_corner + s*_horizontal + t*_vertical - _origin - offset);
+		return ray(_origin + offset, _lower_left_corner + s*_horizontal + t*_vertical - _origin - offset, ftime);
 	}
 
 	vec3 _origin;
@@ -121,8 +121,4 @@ public:
 	float _lens_radius;
 	float _time0, _time1;
 };
-
-
-
-
 #endif

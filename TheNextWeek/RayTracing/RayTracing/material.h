@@ -14,7 +14,6 @@ float schlick(float cosine, float ref_idx)
 	return r0 + (1 - r0)*pow((1 - cosine), 5);
 }
 
-
 bool refract(const vec3 &v, const vec3 &n, float ni_over_nt, vec3 &refracted)
 {
 	vec3 uv = unit_vector(v);
@@ -36,37 +35,32 @@ vec3 reflect(const vec3 &v, const vec3 &n)
 	return v - 2 * dot(v, n)*n;
 }
 
-class material
-{
+class material  {
 public:
-	material(){}
-	~material(){}
-
-	virtual bool scatter(const ray &r_in, const hit_record &rec, vec3 &attenuation, ray& scattered) const = 0;
-private:
-
-};
-
-class lambertian :public material
-{
-public:
-	//lambertian(vec3 albedo) :_albedo(albedo){}
-	lambertian(texture *tx) :_texture(tx){}
-
-	virtual bool scatter(const ray &r_in, const hit_record &rec, vec3 &attenuation, ray& scattered) const
-	{
-		vec3 target = rec.p + rec.normal + random_in_unit_sphere();
-		scattered = ray(rec.p, target - rec.p, r_in.time());
-		//attenuation = _albedo;
-		attenuation = _texture->value(rec.u, rec.v, rec.p);
-		return true;
+	virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const = 0;
+	virtual vec3 emitted(float u, float v, const vec3& p) const {
+		return vec3(0, 0, 0);
 	}
-
-	//vec3 _albedo;
-	texture *_texture;
 };
 
-
+ class lambertian :public material
+ {
+ public:
+ 	//lambertian(vec3 albedo) :_albedo(albedo){}
+ 	lambertian(texture *tx) :_texture(tx){}
+ 
+ 	virtual bool scatter(const ray &r_in, const hit_record &rec, vec3 &attenuation, ray& scattered) const
+ 	{
+ 		vec3 target = rec.p + rec.normal + random_in_unit_sphere();
+ 		scattered = ray(rec.p, target - rec.p, r_in.time());
+ 		//attenuation = _albedo;
+ 		attenuation = _texture->value(rec.u, rec.v, rec.p);
+ 		return true;
+ 	}
+ 
+ 	//vec3 _albedo;
+ 	texture *_texture;
+ };
 
 class metal :public material
 {
@@ -89,7 +83,6 @@ public:
 	vec3 _albedo;
 	float _fuzz;
 };
-
 
 class dielectric :public material
 {
@@ -145,8 +138,24 @@ public:
 	}
 
 	float _ref_idx;
-
 };
 
+class diffuse_light :public material
+{
+public:
+	diffuse_light(texture *tx) :_emit(tx){}
+	virtual bool scatter(const ray &r_in, const hit_record &rec, vec3 &attenuation, ray& scattered) const
+	{
+		return false;
+	}
+
+	virtual vec3 emitted(float u, float v, const vec3 &p)const
+	{
+		return _emit->value(u, v, p);
+	}
+
+private:
+	texture *_emit;
+};
 
 #endif

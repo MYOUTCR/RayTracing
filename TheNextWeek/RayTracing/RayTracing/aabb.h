@@ -5,7 +5,6 @@
 #include "vec3.h"
 #include "hittable_list.h"
 
-
 inline float ffmin(float a, float b){ return a < b ? a : b; }
 inline float ffmax(float a, float b){ return a > b ? a : b; }
 
@@ -20,34 +19,34 @@ public:
 
 	bool hit(const ray &r, float tmin, float tmax)const
 	{
-// 		for (int a = 0; a < 3; a++)
-// 		{
-// 			float t0 = ffmin((_min[a] - r.origin()[a]) / r.direction()[a], (_max[a] - r.origin()[a]) / r.direction()[a]);
-// 			float t1 = ffmax((_min[a] - r.origin()[a]) / r.direction()[a], (_max[a] - r.origin()[a]) / r.direction()[a]);
-// 			tmin = ffmax(t0, tmin);
-// 			tmax = ffmax(t1, tmax);
-// 			if (tmax <= tmin)
-// 				return false;
-// 		}
-// 
-// 		return true;
-
 		for (int a = 0; a < 3; a++)
 		{
-			float invD = 1.0f / r.direction()[a];
-			float t0 = (_min[a] - r.origin()[a])*invD;
-			float t1 = (_max[a] - r.origin()[a])*invD;
-
-			if (invD < 0)
-				std::swap(t0, t1);
-
-			tmin = t0 > tmin ? t0 : tmin;
-			tmax = t1 < tmax ? t1 : tmax;
+			float t0 = ffmin((_min[a] - r.origin()[a]) / r.direction()[a], (_max[a] - r.origin()[a]) / r.direction()[a]);
+			float t1 = ffmax((_min[a] - r.origin()[a]) / r.direction()[a], (_max[a] - r.origin()[a]) / r.direction()[a]);
+			tmin = ffmax(t0, tmin);
+			tmax = ffmin(t1, tmax);
 			if (tmax <= tmin)
 				return false;
 		}
 
 		return true;
+
+// 		for (int a = 0; a < 3; a++)
+// 		{
+// 			float invD = 1.0f / r.direction()[a];
+// 			float t0 = (_min[a] - r.origin()[a])*invD;
+// 			float t1 = (_max[a] - r.origin()[a])*invD;
+// 
+// 			if (invD < 0)
+// 				std::swap(t0, t1);
+// 
+// 			tmin = t0 > tmin ? t0 : tmin;
+// 			tmax = t1 < tmax ? t1 : tmax;
+// 			if (tmax <= tmin)
+// 				return false;
+// 		}
+// 
+// 		return true;
 	}
 
 	~aabb(){};
@@ -64,13 +63,11 @@ aabb surrounding_box(const aabb &box0, const aabb &box1)
 	small[1] = ffmin(box0.min().y(), box1.min().y());
 	small[2] = ffmin(box0.min().z(), box1.min().z());
 
-	big[0] = ffmax(box0.min().x(), box1.min().x());
-	big[1] = ffmax(box0.min().y(), box1.min().y());
-	big[2] = ffmax(box0.min().z(), box1.min().z());
+	big[0] = ffmax(box0.max().x(), box1.max().x());
+	big[1] = ffmax(box0.max().y(), box1.max().y());
+	big[2] = ffmax(box0.max().z(), box1.max().z());
 
 	return aabb(small, big);
 }
-
-
 
 #endif

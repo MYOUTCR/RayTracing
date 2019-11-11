@@ -3,8 +3,8 @@
 #ifndef _HITTABLE_LIST_HEAD_
 #define _HITTABLE_LIST_HEAD_
 
-#include "hittable.h"
 #include "aabb.h"
+#include "hittable.h"
 
 class hittable_list:public hittable
 {

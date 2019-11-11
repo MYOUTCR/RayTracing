@@ -11,18 +11,18 @@ public:
 	virtual vec3 value(float u, float v, const vec3 &p) const=0;
 };
 
-class constant_texture :public texture
-{
-public:
-	constant_texture(){}
-	constant_texture(vec3 c) :_color(c){}
-	virtual vec3 value(float u, float v, const vec3 &p) const
-	{
-		return _color;
-	}
-private:
-	vec3 _color;
-};
+ class constant_texture :public texture
+ {
+ public:
+ 	constant_texture(){}
+ 	constant_texture(vec3 c) :_color(c){}
+ 	virtual vec3 value(float u, float v, const vec3 &p) const
+ 	{
+ 		return _color;
+ 	}
+ private:
+ 	vec3 _color;
+ };
 
 class checker_texture :public texture
 {
@@ -47,17 +47,22 @@ public:
 	texture *even;
 };
 
-class moise_texture :public texture
+class noise_texture :public texture
 {
 public:
-	moise_texture(){}
+	noise_texture(){}
+	noise_texture(float fs) :_fScale(fs){}
 	virtual vec3 value(float u, float v, const vec3 &p) const
 	{
-		return vec3(1.0, 1.0, 1.0)*_noise.noise(p);
+		//return vec3(1.0, 1.0, 1.0)*_noise.noise(p);
+		//return vec3(1.0, 1.0, 1.0)*_noise.noise(_fScale*p);
+		//return vec3(1.0, 1.0, 1.0)*0.5*(1 + sin(_fScale*p.z()+10*_noise.turb(p)));
+		return vec3(1, 1, 1)*0.5*(1 + sin(_fScale*p.x() + 5 * _noise.turb(_fScale*p)));
 	}
 
 private:
 	perlin _noise;
+	float _fScale;
 };
 
 class image_texture :public texture

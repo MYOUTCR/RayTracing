@@ -72,6 +72,8 @@ public:
 	moving_sphere(){}
 	moving_sphere(const vec3 &c0,const vec3 &c1, float t0,float t1, material *m)
 		:_center0(c0), _center1(c1), _time0(t0), _time1(t1), _mat_ptr(m){}
+	moving_sphere(const vec3 &c0, const vec3 &c1, float t0, float t1,float r, material *m)
+		:_center0(c0), _center1(c1), _time0(t0), _time1(t1),_fRadius(r), _mat_ptr(m){}
 	~moving_sphere(){}
 
 	virtual bool hit(const ray &r, float f_min, float f_max, hit_record &rec)const;
@@ -136,8 +138,6 @@ bool moving_sphere::bounding_box(float t0, float t1, aabb&box)const
 
 	return true;
 }
-
-
 
 #endif
 
